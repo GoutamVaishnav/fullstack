@@ -108,9 +108,11 @@ class GoogleCallbackView(APIView):
             headers={"Accept": "application/json"},
             timeout=10,
         )
-        access_token = token_response.json().get("access_token")
+        token_payload = token_response.json()
+        access_token = token_payload.get("access_token")
         if not access_token:
-            return Response({"detail": "Google token exchange failed."}, status=400)
+            detail = token_payload.get("error_description") or token_payload.get("error") or "Google token exchange failed."
+            return Response({"detail": f"Google token exchange failed: {detail}"}, status=400)
 
         user_response = requests.get(
             "https://www.googleapis.com/oauth2/v3/userinfo",
