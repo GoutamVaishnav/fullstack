@@ -1,0 +1,23 @@
+{
+  "routes": [
+    {
+      "src": "/api/auth/(.*)",
+      "dest": "https://ahoum-auth-service.onrender.com/api/auth/$1"
+    },
+    {
+      "src": "/api/sessions/(.*)",
+      "dest": "https://ahoum-sessions-service.onrender.com/api/sessions/$1"
+    },
+    {
+      "src": "/api/bookings/(.*)",
+      "dest": "https://ahoum-bookings-service.onrender.com/api/bookings/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
