@@ -1,7 +1,18 @@
-const API = "";
+const SERVICE_URLS = {
+  auth: import.meta.env.VITE_AUTH_SERVICE_URL || "https://ahoum-auth-service.onrender.com",
+  sessions: import.meta.env.VITE_SESSIONS_SERVICE_URL || "https://ahoum-sessions-service.onrender.com",
+  bookings: import.meta.env.VITE_BOOKINGS_SERVICE_URL || "https://ahoum-bookings-service.onrender.com",
+};
+
+function resolveApiUrl(path) {
+  if (path.startsWith("/api/auth/")) return `${SERVICE_URLS.auth}${path}`;
+  if (path.startsWith("/api/sessions/")) return `${SERVICE_URLS.sessions}${path}`;
+  if (path.startsWith("/api/bookings/")) return `${SERVICE_URLS.bookings}${path}`;
+  return path;
+}
 
 export async function apiRequest(path, token, options = {}) {
-  const response = await fetch(`${API}${path}`, {
+  const response = await fetch(resolveApiUrl(path), {
     ...options,
     headers: {
       "Content-Type": "application/json",
