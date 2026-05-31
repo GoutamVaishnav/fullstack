@@ -33,6 +33,11 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ code }),
     }),
+  devLogin: (role) =>
+    apiRequest("/api/auth/dev-login/", null, {
+      method: "POST",
+      body: JSON.stringify({ role }),
+    }),
   updateProfile: (token, payload) =>
     apiRequest("/api/auth/me/", token, {
       method: "PATCH",

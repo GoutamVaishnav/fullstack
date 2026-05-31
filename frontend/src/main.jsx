@@ -107,6 +107,20 @@ function App() {
     }
   }
 
+  async function demoLogin(role) {
+    setLoading(true);
+    try {
+      const payload = await authApi.devLogin(role);
+      saveAuth(payload);
+      setActiveTab("Overview");
+      navigate(role === "admin" ? "/admin" : role === "creator" ? "/creator" : "/dashboard");
+    } catch (error) {
+      setToast(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function completeOAuth() {
     const code = new URLSearchParams(window.location.search).get("code");
     if (!code) return;
@@ -324,6 +338,7 @@ function App() {
           loading={dataLoading}
           auth={auth}
           onGoogleLogin={googleLogin}
+          onDemoLogin={demoLogin}
           onSwitchRole={(role) => saveProfile(null, role)}
           onLogout={logout}
           onNavigate={navigate}
@@ -338,6 +353,7 @@ function App() {
           onBook={bookSession}
           onNavigate={navigate}
           onGoogleLogin={googleLogin}
+          onDemoLogin={demoLogin}
           onSwitchRole={(role) => saveProfile(null, role)}
           onLogout={logout}
         />
@@ -349,6 +365,7 @@ function App() {
           loading={dataLoading}
           auth={auth}
           onGoogleLogin={googleLogin}
+          onDemoLogin={demoLogin}
           onSwitchRole={(role) => saveProfile(null, role)}
           onLogout={logout}
           onNavigate={navigate}

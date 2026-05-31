@@ -3,7 +3,7 @@ import { TopBar } from "../components/layout.jsx";
 import { Badge, EmptyState, LoadingGrid, LoadingSpinner, MiniMetric, SectionHeading } from "../components/ui.jsx";
 import { formatDate, money, timezoneLabel } from "../utils/format.js";
 
-export function CatalogPage({ sessions, loading, auth, onGoogleLogin, onSwitchRole, onLogout, onNavigate }) {
+export function CatalogPage({ sessions, loading, auth, onGoogleLogin, onDemoLogin, onSwitchRole, onLogout, onNavigate }) {
   return (
     <div className="min-h-screen px-4 pb-10 pt-4 sm:px-6 lg:px-8">
       <TopBar auth={auth} onGoogleLogin={onGoogleLogin} onSwitchRole={onSwitchRole} onLogout={onLogout} onNavigate={onNavigate} />
@@ -14,6 +14,13 @@ export function CatalogPage({ sessions, loading, auth, onGoogleLogin, onSwitchRo
           <p className="mt-4 text-sm leading-6 text-slate-400">Users can discover and book sessions from every creator. Creators can publish and manage only their own sessions after signing in.</p>
           <div className="mt-6 grid gap-3">
             {!auth && <button className="btn-primary" onClick={onGoogleLogin}>Login with Google</button>}
+            {!auth && onDemoLogin && (
+              <div className="grid gap-2 sm:grid-cols-3">
+                <button className="btn-ghost min-h-10 px-3 py-2 text-xs" onClick={() => onDemoLogin("user")}>Demo User</button>
+                <button className="btn-ghost min-h-10 px-3 py-2 text-xs" onClick={() => onDemoLogin("creator")}>Demo Creator</button>
+                <button className="btn-ghost min-h-10 px-3 py-2 text-xs" onClick={() => onDemoLogin("admin")}>Demo Admin</button>
+              </div>
+            )}
             {auth ? (
               <>
                 <button className="btn-primary" onClick={() => onNavigate(auth.user.role === "admin" ? "/admin" : auth.user.role === "creator" ? "/creator" : "/dashboard")}>Open Dashboard</button>
@@ -37,11 +44,11 @@ export function CatalogPage({ sessions, loading, auth, onGoogleLogin, onSwitchRo
   );
 }
 
-export function SessionDetail({ session, loading, auth, onBook, onNavigate, onGoogleLogin, onSwitchRole, onLogout }) {
+export function SessionDetail({ session, loading, auth, onBook, onNavigate, onGoogleLogin, onDemoLogin, onSwitchRole, onLogout }) {
   const spotsLeft = Number(session?.capacity || 20);
   return (
     <div className="min-h-screen px-4 pb-10 pt-4 sm:px-6 lg:px-8">
-      <TopBar auth={auth} onGoogleLogin={onGoogleLogin} onSwitchRole={onSwitchRole} onLogout={onLogout} onNavigate={onNavigate} />
+      <TopBar auth={auth} onGoogleLogin={onGoogleLogin} onDemoLogin={onDemoLogin} onSwitchRole={onSwitchRole} onLogout={onLogout} onNavigate={onNavigate} />
       <section className="mx-auto max-w-6xl py-8">
         {loading ? <LoadingSpinner label="Loading session" /> : !session ? <EmptyState title="Session not found" body="Go back to the catalog and choose another session." /> : (
           <div className="glass-panel grid overflow-hidden lg:grid-cols-[1fr_460px]">
