@@ -1,0 +1,104 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ahoum_marketplace}
+      POSTGRES_USER: ${POSTGRES_USER:-ahoum}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ahoum_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ahoum} -d ${POSTGRES_DB:-ahoum_marketplace}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  auth-service:
+    build: ./auth-service
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SERVICE_NAME: auth-service
+      AUTH_DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      ENABLE_DEV_LOGIN: ${ENABLE_DEV_LOGIN:-1}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "python manage.py migrate && gunicorn auth_service.wsgi:application --bind 0.0.0.0:8000"
+
+  sessions-service:
+    build: ./sessions-service
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SERVICE_NAME: sessions-service
+      SESSIONS_DB_NAME: ${SESSIONS_DB_NAME:-sessions_db}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      BOOKINGS_SERVICE_URL: http://bookings-service:8000
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "python manage.py migrate && gunicorn sessions_service.wsgi:application --bind 0.0.0.0:8000"
+
+  bookings-service:
+    build: ./bookings-service
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SERVICE_NAME: bookings-service
+      BOOKINGS_DB_NAME: ${BOOKINGS_DB_NAME:-bookings_db}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      SESSIONS_SERVICE_URL: http://sessions-service:8000
+      REDIS_URL: redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sessions-service:
+        condition: service_started
+    command: sh -c "python manage.py migrate && gunicorn bookings_service.wsgi:application --bind 0.0.0.0:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - auth-service
+      - sessions-service
+      - bookings-service
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - auth-service
+      - sessions-service
+      - bookings-service
+
+volumes:
+  postgres_data:
