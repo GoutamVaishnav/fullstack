@@ -1,20 +1,23 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/auth/:path*",
-      "destination": "https://ahoum-auth-service.onrender.com/api/auth/:path*"
+      "src": "/api/auth/(.*)",
+      "dest": "https://ahoum-auth-service.onrender.com/api/auth/$1"
     },
     {
-      "source": "/api/sessions/:path*",
-      "destination": "https://ahoum-sessions-service.onrender.com/api/sessions/:path*"
+      "src": "/api/sessions/(.*)",
+      "dest": "https://ahoum-sessions-service.onrender.com/api/sessions/$1"
     },
     {
-      "source": "/api/bookings/:path*",
-      "destination": "https://ahoum-bookings-service.onrender.com/api/bookings/:path*"
+      "src": "/api/bookings/(.*)",
+      "dest": "https://ahoum-bookings-service.onrender.com/api/bookings/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
