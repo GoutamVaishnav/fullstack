@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "https://ahoum-auth-service.onrender.com/api/auth/:path*"
+    },
+    {
+      "source": "/api/sessions/:path*",
+      "destination": "https://ahoum-sessions-service.onrender.com/api/sessions/:path*"
+    },
+    {
+      "source": "/api/bookings/:path*",
+      "destination": "https://ahoum-bookings-service.onrender.com/api/bookings/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 .env
+.env.*
+render-*.env.txt
 __pycache__/
 *.py[cod]
 *.pyc.*
